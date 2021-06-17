@@ -1,26 +1,49 @@
 #!/usr/bin/env python3
 from webscraper import Webscraper
-import argparse
+from docopt import docopt
+
+usage = """
+
+HunterX CLI
+
+Usage:
+    main.py search <item> [-s] [-h]
+    main.py view <user> [-h] [-d]
+    main.py account <user> [-d] [-up]
+
+Options:
+    -h --help
+    -s --save               Save search results to account
+    -d --delete             Deletes item from database
 
 
-scraper = Webscraper()
+"""
+
 def Main():
-    parser = argparse.ArgumentParser()
 
-    parser.add_argument("search", help="Use this flag and specify a product you want to search",
-                        type=str,
-                        action="store")
+    args = docopt(usage)
+    scraper = Webscraper()
 
-    parser.add_argument("-s", "--save", help="Save the best deal to the database",
-                        action="store_true")
+    if args['search']:
+        item = args['<item>']
+        if args['--save']:
+            scraper.save_deals(item)
+        else:
+            scraper.search(item)
 
-    args = parser.parse_args()
-    scraper.search(args.search)
+    if args['view']:
+        if args['--delete']:
+            scraper.clear_deals(args['<user>'])
+        else:
+            scraper.view_deals(args['<user>'])
 
-    if args.save:
-        scraper.save_deals(args.search)
+        
 
+    if args['account']:
+        user = args['<user>']
+        if args['--delete']:
+            scraper.delete_account(user)
+      
 
-if __name__ == "__main__":
+if __name__=='__main__':
     Main()
-
