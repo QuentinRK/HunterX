@@ -6,58 +6,65 @@
 
 * [Technologies](#technologies)
 * [Search](#search)
-* [Save](#savesearch)
-* [View Deals](#viewdeals)
-* [Clear Deals](#cleardeals)
-* [Notes](#notes)
-
+* [Save](#save)
+* [View](#view)
+* [Clear](#clear)
 
 ## Technologies
 
 * Python 3.8.3
+* PostgreSQL
 * Docopt
 
 
 ## Search 
-* To encrypt a directory simply press the encrypt button. 
-* This will prompt a window where you can select a directory of your choice.
-* Once a directory has been selected, choose a secure password (do not forget the password as this is validated & used for decryption).
 
-<img src="./imgs/search.gif" alt="My Project GIF" width="700" height="600">
+Running the ``search`` command returns various prices pertaining to the specified product. An option menu is generated that displays search results for the product, once an option has been selected a table is returned listing sellers, prices and availability.
 
-## Save Search
+```
+$ ./hunterx.py search product
+``` 
 
-* To decrypt an encrypted file simply press the decrypt button.
-* The password used to encrypt the folder must be entered in order to decrypt the .tar file
-* Once the password has been validated the decryption process will begin.
-* A new tar file will be available in the same directory 
-* To access the content justs unzip the file 
+<img src="./imgs/Hunter-Search.gif" alt="My Project GIF" width="800" height="600">
 
-<img src="./code/imgs/Decrypt.gif" alt="My Project GIF" width="700" height="600">
+## Save 
 
+To save the cheapest deal in stock, the optional flag ``-s``  or  ``--save`` can be used with the ``search`` command. If you have an existing account the deal will be added to your account, otherwise a new account is created.
 
-## View Deals 
+```
+$ ./hunterx.py search product -s
+``` 
 
-* To decrypt an encrypted file simply press the decrypt button.
-* The password used to encrypt the folder must be entered in order to decrypt the .tar file
-* Once the password has been validated the decryption process will begin.
-* A new tar file will be available in the same directory 
-* To access the content justs unzip the file 
-
-<img src="./code/imgs/Decrypt.gif" alt="My Project GIF" width="700" height="600">
-
-## Clear Deals 
-
-* To decrypt an encrypted file simply press the decrypt button.
-* The password used to encrypt the folder must be entered in order to decrypt the .tar file
-* Once the password has been validated the decryption process will begin.
-* A new tar file will be available in the same directory 
-* To access the content justs unzip the file 
-
-<img src="./code/imgs/Decrypt.gif" alt="My Project GIF" width="700" height="600">
+<img src="./imgs/Hunter-Save.gif" alt="My Project GIF" width="800" height="600">
 
 
-## Notes 
+## View 
 
-* Large directories may take a while to compress, ensure that Salsa Secure runs to completion.
-* dmg and exe files are coming soon 
+
+To view all of the saved deals for an account, the ``view`` command can be used followed by the username. For validation a password is required.
+
+```
+$ ./hunterx.py view username
+``` 
+
+<img src="./imgs/View.gif" alt="My Project GIF" width="800" height="600">
+
+## Clear 
+
+To clear all the deals in your account the ``-d`` or ``--delete`` flag can be used.
+
+```
+$ ./hunterx.py view username -d
+``` 
+
+<img src="./imgs/Clear.gif" alt="My Project GIF" width="800" height="600">
+
+## Delete 
+
+The ``-d`` flag can also be used with the ``account`` command to permanently delete the account
+
+```
+$ ./hunterx.py account username -d
+``` 
+
+<img src="./imgs/Delete-Account.gif" alt="My Project GIF" width="800" height="600">
