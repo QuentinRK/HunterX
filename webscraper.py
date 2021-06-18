@@ -4,22 +4,29 @@ from config import config
 from stdiomask import getpass
 from passlib.hash import pbkdf2_sha256
 import time
-import ast
 import sys
-import os
 import psycopg2
-import bcrypt
 
+"""
+The Webscraper class process data supplied by the DealSpider class which scrapes data from web pages.
+Adding, removing and displaying information from the database is another responsibility that this class has.
+
+"""
 
 
 class Webscraper:
     def __init__(self):
         self.search_result = None
-        self.info = None
+        self.product_info = None
         self.option = None
         self.table_data = None
         self.params = config()
         self.validation_successful = False
+
+    """
+        The search function gathers the users input and passes that information down to the DealsSpider.
+        This spider then returns the search results and the search function displays these options using the view_options function.
+    """
 
     def search(self, search_text):
         try:
@@ -30,12 +37,12 @@ class Webscraper:
                 print("\n"+ "Select an item below (for item [1] enter 1 etc..)" + "\n")
                 self.view_options()
                 while True:
-                    self.option = input().strip()
+                    self.selected_option = input().strip()
                     option_list = ['1', '2', '3']
-                    if self.option in option_list:
+                    if self.selected_option in option_list:
                         break
                     
-                    if self.option.lower() in ['q', 'quit', 'exit']:
+                    if self.selected_option.lower() in ['q', 'quit', 'exit']:
                         sys.exit(0)
 
                     print("\n" + "Invalid input" + "\n") 
@@ -47,7 +54,7 @@ class Webscraper:
             sys.exit(1)
 
         
-        self.price_list(self.option)
+        self.price_list(self.selected_option)
         
     def view_options(self):
         if self.search_result:
@@ -56,26 +63,31 @@ class Webscraper:
         else:
             print('Have not searched for any items')
 
-    def price_list(self,option):
+    """
+        The price list function runs an additional spider which takes the option that the user has selected.
+        the return information is then tabulated for the user
+    """
 
-        price_spider = DealSpider(optional_url=self.search_result[int(option)]['link'],
+    def price_list(self, option):
+
+        product_spider = DealSpider(optional_url=self.search_result[int(option)]['link'],
         mode='price_scrape')
 
-        self.info = price_spider.info
+        self.product_info = product_spider.product_info
 
-        price_spider.run()
+        product_spider.run()
 
         table_data = [
             ['Company','Item','Price','Stock']
         ]
 
         count = 0
-        for i in self.info:
+        for i in self.product_info:
              
-            stock = self.info[i]['stock']
-            name = self.info[i]['name']
-            price = self.info[i]['price']
-            company = self.info[i]['company']
+            stock = self.product_info[i]['stock']
+            name = self.product_info[i]['name']
+            price = self.product_info[i]['price']
+            company = self.product_info[i]['company']
 
             items = [company, name, price, stock]
             table_data.append(items)
@@ -87,6 +99,11 @@ class Webscraper:
 
         self.table_data = table_data[1:]
 
+    """
+        The save deals function connects to the database and inputs information such as the company, price and stock.
+        Once user validation has been completed all of these processes take action and the deals table in the database is filled 
+    """
+
     def save_deals(self,item):
 
         self.search(item)
@@ -94,10 +111,9 @@ class Webscraper:
         with psycopg2.connect(**self.params) as conn:
             with conn.cursor() as cur:
 
-                # password function
                 username = input("\n"+"Enter Username: ").strip()
-                validation = self.validate_user(username, mode="search")
-                if validation:
+                validated = self.validate_user(username, mode="search")
+                if validated:
                     data  = self.table_data
                     cheapest_deal = True
                     for field in data:
@@ -108,7 +124,7 @@ class Webscraper:
                         stock =   field[3]
                 
                         # Check for items in database 
-                        # if they arent add them to the database 
+                        # If they aren't add them to the database 
                         product_name_query = """SELECT name FROM products WHERE name=%s"""
                         cur.execute(product_name_query, (product,))
                         product_names = cur.fetchall()
@@ -123,14 +139,14 @@ class Webscraper:
                             insert_query = """INSERT INTO products (name, stock) VALUES (%s, %s);"""
                             cur.execute(insert_query, (product, stock))
 
-                        # check if deal is already saved otherwise insert
+                        # Check deal is already saved otherwise insert a product that is in stock
                         if stock and cheapest_deal:
-                            check_query = """SELECT (users.id, deals.product_id) FROM deals 
+                            check_product_query = """SELECT (users.id, deals.product_id) FROM deals 
                                              INNER JOIN users ON deals.user_id = users.id
                                              WHERE name=%s AND product_name=%s"""
 
 
-                            cur.execute(check_query, (username,product))
+                            cur.execute(check_product_query, (username,product))
                             product_id = cur.fetchone()
 
                             if product_id is None:
@@ -147,17 +163,22 @@ class Webscraper:
                                 cheapest_deal = False
                                 print("Deal Is Already Saved")
 
+    """
+        Queries the Deals table in the database and returns all of the users deals which is then tabulated.
+    """
+
     def view_deals(self, user):
-        validate = self.validate_user(user=user)
-        if validate:
+        validated = self.validate_user(user=user)
+        if validated:
             with psycopg2.connect(**self.params) as conn:
                 with conn.cursor() as cur:               
-                    deals_query = """SELECT (companies.name), (product_name), (price::numeric) FROM deals
+                    view_deals_query = """SELECT (companies.name), (product_name), (price::numeric) FROM deals
                                     INNER JOIN companies ON companies.id=deals.company_id
                                     INNER JOIN users ON users.id=deals.user_id
                                     where users.name=%s"""
+
                     headers = ['Company', 'Product', 'Price']
-                    cur.execute(deals_query, (user,))
+                    cur.execute(view_deals_query, (user,))
                     items  = cur.fetchall()
                     convert_tuple = [list(items[i]) for i in range(len(items))]
                     convert_tuple.insert(0, headers)
@@ -168,8 +189,8 @@ class Webscraper:
             conn.close()
 
     def clear_deals(self, user):
-        validate = self.validate_user(user)
-        if validate:
+        validated = self.validate_user(user)
+        if validated:
             with psycopg2.connect(**self.params) as conn:
                 with conn.cursor() as cur:
                         delete_query = """DELETE FROM deals WHERE user_id=(SELECT id FROM users WHERE name=%s)"""
@@ -178,6 +199,11 @@ class Webscraper:
 
 
             conn.close()
+
+    """
+        This function queries the Users table to check if the user is in the database.
+        Once this has completed the password validator function is called to validate the password of a new or existing user
+    """
 
     def validate_user(self, user, mode=None):
         user = user.strip()
@@ -198,16 +224,20 @@ class Webscraper:
                     
                 self.password_validator(user=user, mode="check")
                 return self.validation_successful
- 
+    
+    """
+        Cascade deletes are executing when this function is run.
+    """
+
     def delete_account(self, user):
 
-        validate = self.validate_user(user)
-        if validate:
+        validated = self.validate_user(user)
+        if validated:
             with psycopg2.connect(**self.params) as conn:
                 with conn.cursor() as cur:
-                    delete_query = """DELETE FROM users WHERE name=%s"""
-                    cur.execute(delete_query, (user,))
-                    print("Acount Deleted!")
+                    delete_account_query = """DELETE FROM users WHERE name=%s"""
+                    cur.execute(delete_account_query, (user,))
+                    print("Account Deleted!")
             conn.close()
 
     def password_validator(self, user, mode=None):        

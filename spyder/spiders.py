@@ -1,18 +1,19 @@
 import scrapy 
 from scrapy.crawler import CrawlerProcess
 import scrapydo
-import time
 import logging
-import sys
 from urllib.parse import urljoin
 
-
 scrapydo.setup()
+
+"""
+    The Dealspider class is responsible for scraping web pages and formatting the data.
+"""
 
 class DealSpider(scrapy.Spider):
     name = "deal_spyder"
     search_result = {}
-    info = {}
+    product_info = {}
 
     def __init__(self, user_input=None, mode=None, optional_url=None):
 
@@ -26,17 +27,15 @@ class DealSpider(scrapy.Spider):
         if self.mode == 'initial':
             url = urljoin(self.base, self.search)
             yield scrapy.Request(url=url, callback=self.get_options)
-        
-        
+         
         if self.mode == 'price_scrape':
             url = urljoin(self.base, self.optional_url)
             yield scrapy.Request(url=url, callback=self.scrape_info)
 
     def scrape_info(self, response):
 
- 
         for i in range(len(response.css(".ProductName-sc-1e897he-2::text").getall())):
-            self.info[i] = {
+            self.product_info[i] = {
                             'company' : response.css('.StoreInfoTitle-zagdae-6::text')[i].get(),
                             'name' : response.css(".ProductName-sc-1e897he-2::text")[i].get(),
                             'price': response.css(".PriceLabel-sc-1sn64xr-3::text")[i].get(),
@@ -44,20 +43,20 @@ class DealSpider(scrapy.Spider):
                             }
        
      
-        for i in self.info:
-            stock = self.info[i]['stock']
-            name = self.info[i]['name']
-            price = self.info[i]['price']
+        for i in self.product_info:
+            stock = self.product_info[i]['stock']
+            name = self.product_info[i]['name']
+            price = self.product_info[i]['price']
 
             stock_status = ['in', 'out', 'unknown']
             if stock_status[0] in stock:
-                self.info[i]['stock'] = True
+                self.product_info[i]['stock'] = True
 
             if stock_status[1] in stock:
-                self.info[i]['stock'] = False
+                self.product_info[i]['stock'] = False
             
             if stock_status[2] in stock:
-                self.info[i]['stock'] = True
+                self.product_info[i]['stock'] = True
 
     def get_options(self, response):
         self.search_result.clear()

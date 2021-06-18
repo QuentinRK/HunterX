@@ -7,9 +7,9 @@ usage = """
 HunterX CLI
 
 Usage:
-    main.py search <item> [-s] [-h]
-    main.py view <user> [-h] [-d]
-    main.py account <user> [-d] [-up]
+    ./hunterx.py search <item> [-s] [-h]
+    ./hunterx.py view <user> [-h] [-d]
+    ./hunterx.py account <user> [-d] [-up]
 
 Options:
     -h --help
