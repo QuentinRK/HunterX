@@ -1,15 +1,14 @@
 # Hunterx
 
 
-Salsa Secure is a GUI application that is used to encrypt directories with sensitive or private information.
-Salsa Secure implements the salsa20 cipher which is used for the encryption along with multiple hashing alogrithims. 
-
 
 ## Table Contents
 
 * [Technologies](#technologies)
-* [Encryption](#encryption)
-* [Decryption](#decryption)
+* [Search](#search)
+* [Save](#savesearch)
+* [View Deals](#viewdeals)
+* [Clear Deals](#cleardeals)
 * [Notes](#notes)
 
 
@@ -19,14 +18,14 @@ Salsa Secure implements the salsa20 cipher which is used for the encryption alon
 * Docopt
 
 
-## Encryption 
+## Search 
 * To encrypt a directory simply press the encrypt button. 
 * This will prompt a window where you can select a directory of your choice.
 * Once a directory has been selected, choose a secure password (do not forget the password as this is validated & used for decryption).
 
-<img src="./code/imgs/Encrypt.gif" alt="My Project GIF" width="700" height="600">
+<img src="./imgs/search.gif" alt="My Project GIF" width="700" height="600">
 
-## Decryption 
+## Save Search
 
 * To decrypt an encrypted file simply press the decrypt button.
 * The password used to encrypt the folder must be entered in order to decrypt the .tar file
@@ -35,6 +34,28 @@ Salsa Secure implements the salsa20 cipher which is used for the encryption alon
 * To access the content justs unzip the file 
 
 <img src="./code/imgs/Decrypt.gif" alt="My Project GIF" width="700" height="600">
+
+
+## View Deals 
+
+* To decrypt an encrypted file simply press the decrypt button.
+* The password used to encrypt the folder must be entered in order to decrypt the .tar file
+* Once the password has been validated the decryption process will begin.
+* A new tar file will be available in the same directory 
+* To access the content justs unzip the file 
+
+<img src="./code/imgs/Decrypt.gif" alt="My Project GIF" width="700" height="600">
+
+## Clear Deals 
+
+* To decrypt an encrypted file simply press the decrypt button.
+* The password used to encrypt the folder must be entered in order to decrypt the .tar file
+* Once the password has been validated the decryption process will begin.
+* A new tar file will be available in the same directory 
+* To access the content justs unzip the file 
+
+<img src="./code/imgs/Decrypt.gif" alt="My Project GIF" width="700" height="600">
+
 
 ## Notes 
 
