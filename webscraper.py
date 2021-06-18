@@ -78,7 +78,7 @@ class Webscraper:
         product_spider.run()
 
         table_data = [
-            ['Company','Item','Price','Stock']
+            ['Company','Product','Price','Stock']
         ]
 
         count = 0
